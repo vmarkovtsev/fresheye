@@ -27,6 +27,9 @@ cat fresheye2.log
 #include <ctype.h>
 #include <time.h>
 
+#define PROGABOUT "Fresh Eye </> Свежий Взгляд  v1.21  (C) OnMind Systems, 1994, 95\n"
+#define LOGNAME "fresheye.log"
+
 #define WS 3000       /* wordcount storage size (items) */
 #define MAXWLEN 20    /* maximum word length to be stored in wordcount */
 #define MAXWIDTH 30
@@ -126,7 +129,8 @@ const char *voc [VOCSIZE] [2] = {       /* exceptions vocabulary */
 const char *prname = "Fresh Eye </> Свежий Взгляд";
 const char *rule = "==================================================================";
 
-char fname [77];                   /* input file name */
+char fname [256];                  /* input file name */
+char fout [256];                   /* input file name */
 char wrd [34];                     /* current word */
 char *wpoint = wrd;
 char s [255];                      /* current line */
@@ -142,7 +146,7 @@ int wcnt = 0;                      /* word counter */
 int cries, ogos;                   /* counters: found, recorded */
 
 typedef struct {int co; char *po;} cp;
-				   /* word item: frequency, char pointer */
+                   /* word item: frequency, char pointer */
 int l0, l1, l2;                    /* temporals for fastening wordcmp */
 char *list;                   /* array of words counted */
 /* char list [50000]; */                     /* [WS * MAXWLEN]; */
@@ -463,7 +467,7 @@ int raz (char *p) {
     default:
       if (!spaces) {
         res ++;
-	spaces = 1;
+    spaces = 1;
       }
       break;
   }
@@ -489,8 +493,8 @@ char *nextword (void) {
     if (!newline)
       newline = 1;
     else {
-	par = 1;
-	glpar = 1;
+    par = 1;
+    glpar = 1;
     }
     sp = s;
     while (! isletter (sp) && *sp)
@@ -653,9 +657,9 @@ int infor (char *a, char *b) {   /* calculates quantity of information */
   while (*pp) {                      /* bipresent letters - add */
     if (p = strchr (b, *pp)) {
       if (beg && (p == b))
-	res += inf_letters [lnum (pp)] [1];
+    res += inf_letters [lnum (pp)] [1];
       else
-	res += inf_letters [lnum (pp)] [0];
+    res += inf_letters [lnum (pp)] [0];
       count ++;
     }
     beg = 0;
@@ -759,7 +763,7 @@ int simwords (char *a, char *b) {  /* yields similarity of words */
                         supposing the words are adjacent */
 
         if (prir > resa)
-	  resa = prir;
+      resa = prir;
                      /* resa accumulates the greatest value */
       }
     }
@@ -820,7 +824,7 @@ int show (int num, int bad, int sim, int dist) {
       }
       st1 = sprevs [-- t];
       if (t < 0)
-	return (0);
+    return (0);
       wr1 = st1 + strlen (st1) - 1;
       if (isletter (wr1))
         inw = 1;
@@ -830,7 +834,7 @@ int show (int num, int bad, int sim, int dist) {
     if (!isletter (wr1))
       if (inw) {
         inw = 0;
-	num --;
+    num --;
       }
     if (isletter (wr1))
       if (!inw)
@@ -845,13 +849,13 @@ int show (int num, int bad, int sim, int dist) {
       return (0);
     if (!forw)
       if (!fgs (sforw, f))   /* read ahead */
-	forw = 2;         /* end of file encountered */
+    forw = 2;         /* end of file encountered */
       else
-	forw = 1;
+    forw = 1;
 
     if (forw != 2) {
       if (*sforw == 0) /* \par comes after the second word */
-	return (0);
+    return (0);
     }
   }
 
@@ -1048,7 +1052,8 @@ void eggog () {
 
 void displ_help () {
 
-  puts ("  Usage: fe <filename> [-{l<nn>|s<nn>|c<nn>|a|d|w[<nn>]|p|r{y|n}}]\n");
+  puts ("  Usage: fe [options] <filename> [logname=fresheye.log]\n");
+  puts ("    options:");
   puts ("    -l<nn>    length of context (default = 9, max = 30)");
   puts ("    -s<nn>    sensitivity threshold (default = 600)");
   puts ("    -c<nn>    coefficient of using wordcount information");
@@ -1072,7 +1077,7 @@ int check_log (void) {
   if (resume_no)
     return (1);
 
-  if ((fo = fopen ("fresheye.log", "ab+")) == NULL)
+  if ((fo = fopen (fout, "ab+")) == NULL)
     return (1);
 
   while (!feof (fo)) {
@@ -1245,7 +1250,7 @@ e:  if (esc_pressed ()) {
     for (l = 0; l < wcsize; l ++) {
       fprintf (fo, "%s\t%s%s%i\r\n", i1[l].po,
         (strlen (i1[l].po) > 7) ? "" : "\t",
-	(strlen (i1[l].po) > 15) ? " " : "\t ",
+    (strlen (i1[l].po) > 15) ? " " : "\t ",
         i1[l].co);
     }
     fprintf (fo, "=== END WORDCOUNT\r\n\r\n");
@@ -1279,7 +1284,7 @@ e:  if (esc_pressed ()) {
 
 void main (char argc, char **argv) {
 
-  int t;
+  int t, fcount = 0;
   char c, help = 0;
   time_t ts;
   struct tm dt;
@@ -1298,14 +1303,17 @@ void main (char argc, char **argv) {
   }
 */
 
-  puts ("Fresh Eye </> Свежий Взгляд  v1.21  (C) OnMind Systems, 1994, 95\n");
+  puts (PROGABOUT);
   if (argc < 2) {
     displ_help ();
   }
 
-  for (c = 1; c < argc; c ++) {
-    if (**(argv + c) == '-') {
-      switch (toupper (*(*(argv + c) + 1))) {
+  for (c = 1; c < argc; c ++)
+  {
+    if (**(argv + c) == '-')
+    {
+      switch (toupper (*(*(argv + c) + 1)))
+      {
         case '?':
           help = 1;
           break;
@@ -1358,8 +1366,13 @@ void main (char argc, char **argv) {
         default:
           eggog ();
       }
-    } else
-      strcpy (fname, *(argv + c));
+    } else {
+      fcount++;
+      if (fcount == 1)
+        strcpy (fname, *(argv + c));
+      else
+        strcpy (fout, *(argv + c));
+    }
   }
 
   if (help)
@@ -1371,7 +1384,8 @@ void main (char argc, char **argv) {
   if (strcasecmp (fname + strlen (fname) - 4, ".doc") == 0)
     wordmode = 1;
 
-  if (!(f = fopen (fname, "rb"))) {
+  if (!(f = fopen (fname, "rb")))
+  {
     puts ("!  Cannot open file");
     exit (1);
   }
@@ -1381,11 +1395,18 @@ void main (char argc, char **argv) {
 
   twosigmasqr = 2 * sqr (width * 4);
 
+  if (fcount < 2 || strcmp(fname, fout) == 0)
+    strcpy (fout, LOGNAME);
   readlog = 1;
   fstr = check_log ();
   readlog = 0;
 
-  fo = fopen ("fresheye.log", "ab");
+  fo = fopen (fout, "ab");
+  if (!fo)
+  {
+    puts ("!  Cannot open log file");
+    exit (1);
+  }
   ts = time(NULL);
   dt = *localtime(&ts);
   fprintf (fo, "\r\n\r\n%s  v1.2\t Файл: %s%s%02i.%02i.%i\r\n",
@@ -1394,19 +1415,18 @@ void main (char argc, char **argv) {
   fprintf (fo, "%s", rule);
   fprintf (fo, "\r\n");
 
-  if (wcount)
-    if (wordcount ())
-      goto fin;
-
-  *s = 0;
-  sp = s;
-  while (nextword ()) {         /* the main program's loop */
-    if (check ())
-      break;
-    shift ();
+  if (wcount == 0 || wordcount () == 0)
+  {
+    *s = 0;
+    sp = s;
+    while (nextword ())
+    {         /* the main program's loop */
+      if (check ())
+        break;
+      shift ();
+    }
   }
 
-fin:
   fprintf (fo, "\r\n");
   fprintf (fo, "%s", rule);
   fprintf (fo, "\r\nСтрок: %u  Начало: %u  Слов: %u      Срабатываний: %u  Записано: %u\r\n", lcnt, fstr, wcnt, cries, ogos);
